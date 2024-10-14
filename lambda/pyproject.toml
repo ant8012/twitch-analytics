@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Gets the latest Twitch stream metrics and exports it to S3"
 authors = ["Antony Trinh"]
 license = "MIT"
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
