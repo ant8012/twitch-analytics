@@ -47,7 +47,7 @@ jobs:
 
     - name: Terraform Workspace
       run: |
-        terraform workspace select dev|| terraform workspace new dev
+        terraform workspace select -or-create dev
 
     - name: Terraform Format
       run: terraform fmt -check
@@ -64,9 +64,9 @@ jobs:
       if: steps.plan.outcome == 'failure'
       run: exit 1
 
-    - name: Terraform Apply
-      run: |
-        terraform apply -input=false \
-          -var="bucket={\"name\":\"${{ secrets.S3_BUCKET}}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
-          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
-      working-directory: ./terraform
+    # - name: Terraform Apply
+    #   run: |
+    #     terraform apply -input=false \
+    #       -var="bucket={\"name\":\"${{ secrets.S3_BUCKET}}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
+    #       -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+    #   working-directory: ./terraform
