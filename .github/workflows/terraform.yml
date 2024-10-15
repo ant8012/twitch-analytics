@@ -45,6 +45,10 @@ jobs:
         -backend-config="region=${{ secrets.TERRAFORM_BACKEND_REGION }}"
       working-directory: ./terraform
 
+    - name: Terraform Workspace List
+      run: |
+        terraform workspace list
+
     - name: Terraform Workspace
       run: |
         terraform workspace select dev
