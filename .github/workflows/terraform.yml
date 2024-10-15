@@ -46,10 +46,6 @@ jobs:
         -backend-config="region=${{ secrets.TERRAFORM_BACKEND_REGION }}"
       working-directory: ./terraform
 
-    - name: Terraform Workspace List
-      run: |
-        terraform workspace list
-
     - name: Terraform Workspace
       run: |
         terraform workspace select dev
@@ -71,7 +67,7 @@ jobs:
 
     - name: Terraform Apply
       run: |
-        terraform apply -input=false \
+        terraform apply -input=false -auto-approve \
           -var="bucket={\"name\":\"${{ secrets.S3_BUCKET}}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
           -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
       working-directory: ./terraform
