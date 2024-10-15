@@ -2,7 +2,7 @@
 terraform {
   backend "s3" {
     bucket = "placholder-bucket"
-    key = "path/terraform.tfstate"
+    key    = "path/terraform.tfstate"
     region = "us-east-1"
   }
 }
