@@ -1,0 +1,78 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+env:
+  TERRAFORM_VERSION: 1.9.5
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+  
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+        aws-region: ${{ secrets.TERRAFORM_BACKEND_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: $TERRAFORM_VERSION
+
+    - name: Terraform Init
+      run: |
+       terraform init \
+        -backend-config="bucket=${{ secrets.TERRAFORM_BACKEND_BUCKET }}" \
+        -backend-config="key=${{ secrets.TERRAFORM_BACKEND_KEY }}" \
+        -backend-config="region=${{ secrets.TERRAFORM_BACKEND_REGION }}"
+      working-directory: ./terraform
+
+    - name: Terraform Workspace List
+      run: |
+        terraform workspace list
+
+    - name: Terraform Workspace
+      run: |
+        terraform workspace select dev
+
+    - name: Terraform Format
+      run: terraform fmt -check
+      working-directory: ./terraform
+
+    - name: Terraform Plan
+      run: |
+        terraform plan -input=false \
+          -var="bucket={\"name\":\"${{ secrets.S3_BUCKET }}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
+          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+      working-directory: ./terraform
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1 
+
+    - name: Terraform Apply
+      run: |
+        terraform apply -input=false \
+          -var="bucket={\"name\":\"${{ secrets.S3_BUCKET}}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
+          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+      working-directory: ./terraform
+  
