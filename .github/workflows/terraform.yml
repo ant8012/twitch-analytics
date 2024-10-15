@@ -52,7 +52,7 @@ jobs:
 
     - name: Terraform Workspace
       run: |
-        terraform workspace new dev
+        terraform workspace select dev
 
     - name: Terraform Format
       run: terraform fmt -check
