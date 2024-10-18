@@ -78,3 +78,37 @@ variable "cloudwatch" {
     schedule_expression = "cron(0/15 * * * ? *)"
   }
 }
+
+variable "databricks" {
+  description = "Databricks variables"
+  type = object({
+    name                = string
+    task_key            = string
+    schedule_expression = string
+    timezone_id         = string
+    notebook            = string
+    notebook_path       = string
+  })
+  default = {
+    name                = "Twitch pipeline"
+    task_key            = "Run_notebook"
+    schedule_expression = "1 10 0/6 * * ?"
+    timezone_id         = "America/Chicago"
+    notebook            = "twitch_pipeline.sql"
+    notebook_path       = "notebooks"
+  }
+}
+
+variable "databricks_pipeline" {
+  description = "Databricks additional configuration"
+  type = object({
+    s3_bucket_path      = string
+    catalog             = string
+    email               = string
+  })
+  default = {
+    s3_bucket_path      = "CHANGEME"
+    catalog             = "CHANGEME"
+    email               = "CHANGEME"
+  }
+}
