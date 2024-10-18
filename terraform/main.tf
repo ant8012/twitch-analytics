@@ -2,6 +2,15 @@ provider "aws" {
   region = var.region
 }
 
+terraform {
+  required_providers {
+    databricks = {
+      source = "databricks/databricks"
+    }
+  }
+}
+
+
 resource "aws_secretsmanager_secret" "twitch_client_credentials" {
   name        = "${var.twitch_credentials.name}-${terraform.workspace}"
   description = "Twitch client credentials including client_id and client_secret"
@@ -184,4 +193,56 @@ resource "aws_lambda_permission" "allow_eventbridge" {
     aws_lambda_function.twitch_get_streams_lambda,
     aws_cloudwatch_event_rule.every_15_minutes
   ]
+}
+
+resource "databricks_notebook" "twitch_notebook" {
+  path   = "/Users/${var.databricks_pipeline.email}/${var.databricks.notebook}"
+  format = "SOURCE"
+  source = "${path.module}/../${var.databricks.notebook_path}/${var.databricks.notebook}"
+}
+
+resource "databricks_pipeline" "this" {
+  name = var.databricks.name
+  configuration = {
+    s3_bucket_path = var.databricks_pipeline.s3_bucket_path
+  }
+
+  target     = "default"
+  serverless = true
+  catalog    = var.databricks_pipeline.catalog
+  photon     = true
+  continuous = false
+
+  library {
+    notebook {
+      path = databricks_notebook.twitch_notebook.id
+    }
+  }
+
+  filters {}
+  development = true
+}
+
+resource "databricks_job" "this" {
+  name = var.databricks.name
+
+  task {
+    task_key = var.databricks.task_key
+    pipeline_task {
+      pipeline_id = databricks_pipeline.this.id
+    }
+  }
+
+  schedule {
+    quartz_cron_expression = var.databricks.schedule_expression
+    timezone_id            = var.databricks.timezone_id
+  }
+
+  depends_on = [
+    databricks_notebook.twitch_notebook,
+  ]
+
+  email_notifications {
+    on_failure = [var.databricks_pipeline.email]
+  }
 }
