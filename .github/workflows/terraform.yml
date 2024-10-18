@@ -65,7 +65,7 @@ jobs:
       run: |
         terraform plan -input=false \
           -var="bucket={\"name\":\"${{ secrets.S3_BUCKET }}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
-          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}" \
           -var="databricks_pipeline={\"s3_bucket_path\":\"${{ secrets.S3_BUCKET }}/${{ secrets.S3_BUCKET_PREFIX }}\",\"catalog\":\"twitch_test\", \"email\":\"${{ secrets.DATABRICKS_EMAIL }}\"}"
       working-directory: ./terraform
 
@@ -78,7 +78,7 @@ jobs:
       run: |
         terraform apply -input=false -auto-approve \
           -var="bucket={\"name\":\"${{ secrets.S3_BUCKET}}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
-          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}" \
           -var="databricks_pipeline={\"s3_bucket_path\":\"${{ secrets.S3_BUCKET }}/${{ secrets.S3_BUCKET_PREFIX }}\",\"catalog\":\"twitch_test\", \"email\":\"${{ secrets.DATABRICKS_EMAIL }}\"}"
       working-directory: ./terraform
   
