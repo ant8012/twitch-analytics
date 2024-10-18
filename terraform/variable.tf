@@ -102,13 +102,13 @@ variable "databricks" {
 variable "databricks_pipeline" {
   description = "Databricks additional configuration"
   type = object({
-    s3_bucket_path      = string
-    catalog             = string
-    email               = string
+    s3_bucket_path = string
+    catalog        = string
+    email          = string
   })
   default = {
-    s3_bucket_path      = "CHANGEME"
-    catalog             = "CHANGEME"
-    email               = "CHANGEME"
+    s3_bucket_path = "CHANGEME"
+    catalog        = "CHANGEME"
+    email          = "CHANGEME"
   }
 }

@@ -196,21 +196,21 @@ resource "aws_lambda_permission" "allow_eventbridge" {
 }
 
 resource "databricks_notebook" "twitch_notebook" {
-  path     = "/Users/${var.databricks_pipeline.email}/${var.databricks.notebook}"
-  format   = "SOURCE"
-  source   = "${path.module}/../${var.databricks.notebook_path}/${var.databricks.notebook}"
+  path   = "/Users/${var.databricks_pipeline.email}/${var.databricks.notebook}"
+  format = "SOURCE"
+  source = "${path.module}/../${var.databricks.notebook_path}/${var.databricks.notebook}"
 }
 
 resource "databricks_pipeline" "this" {
-  name    = var.databricks.name
+  name = var.databricks.name
   configuration = {
     s3_bucket_path = var.databricks_pipeline.s3_bucket_path
   }
 
-  target = "default"
+  target     = "default"
   serverless = true
-  catalog = var.databricks_pipeline.catalog
-  photon = true
+  catalog    = var.databricks_pipeline.catalog
+  photon     = true
   continuous = false
 
   library {
