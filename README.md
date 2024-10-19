@@ -60,6 +60,6 @@ This project serves as a good starting point to analyze streaming trends but can
 For example, I wanted to integrate additional game metadata #13 to analyze the trends of the types of games being streamed.
 
 Additionally, there are a number of improvements that can approve the monitorability, robustness, and data quaility. For example:
-- Implement separate dev/prod environments #14
-- Improve the query time of the deashboard #12
-- Adding more data quality checks and handling schema evolution #17
+- Implement separate dev/prod environments [#14](https://github.com/ant8012/twitch-analytics/issues/14)
+- Improve the query time of the deashboard [#12](https://github.com/ant8012/twitch-analytics/issues/12)
+- Adding more data quality checks and handling schema evolution [#17](https://github.com/ant8012/twitch-analytics/issues/17)
