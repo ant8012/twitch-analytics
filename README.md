@@ -8,7 +8,7 @@ A pipeline and dashboard for displaying metrics from the streaming site [Twitch.
 # Background
 As an avid watcher of Twitch I wanted to get a better understanding of the trends in the streaming space. I wanted to answer questions such as:
 - How does the total viewership of Twitch change over time?
-- What are the top games/categries/streamers being streamed over different time periods (hour, day, week)?
+- What are the top games/categories/streamers being streamed over different time periods (hour, day, week)?
 - How much time are viewers spending on the platform?
 
 To answer these questions I used [Twitch's API](https://dev.twitch.tv/docs/api/) to gather real time metrics on who is currently streaming and used
@@ -20,7 +20,7 @@ Databricks to perform processing and analytics.
 1. A Lambda function runs every 15 min and queries [this endpoint](https://dev.twitch.tv/docs/api/reference/#get-streams)
 2. The endpoint returns all the current live streams and the result is written to a parquet file in S3.
 3. A Delta Live Table (DLT) pipeline is configured in Databricks to run every couple hours to read the latest data via a streaming table.
-4. The pipeline produces several materialized tables which are quiered by a [Streamlit](https://streamlit.io/) app.
+4. The pipeline produces several materialized tables which are queried by a [Streamlit](https://streamlit.io/) app.
 
 The lambda, S3 bucket, and the DLT pipeline are created by a Terraform configuration.
 
@@ -35,7 +35,7 @@ The following tables are produced:
 - **gold_game_metrics** - Contains aggregated metrics about each game/category.
 - **top_streamers** - Materialized tables that rank streamers on total hours watched/max viewers within a given period (hour/day/week).
 - **top_games** - Materialized tables that rank games on total hours watched/max viewers within a given period (hour/day/week).
-- **latest_stream_metrics** - Materialized tables produce overall metrics such as total # of stream and viwers within a given period (hour/day/week).
+- **latest_stream_metrics** - Materialized tables produce overall metrics such as total # of streams and viewers within a given period (hour/day/week).
 
 # Implementation
 The main components of this pipeline are detailed in the following PRs:
@@ -57,7 +57,7 @@ To process the resulting data I used DLT pipelines process the resulting data. D
 
 # Improvements
 This project serves as a good starting point to analyze streaming trends but can be further expanded to answer more advanced questions.
-For example, I wanted to integrate addtional game metadata #13 to anyalyze the trends of the types of games being streamed.
+For example, I wanted to integrate additional game metadata #13 to analyze the trends of the types of games being streamed.
 
 Additionally, there are a number of improvements that can approve the monitorability, robustness, and data quaility. For example:
 - Implement separate dev/prod environments #14
