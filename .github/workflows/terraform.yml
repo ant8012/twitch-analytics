@@ -3,6 +3,9 @@ name: 'Terraform'
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+      branches:
+        - main
 
 permissions:
   contents: read
@@ -30,6 +33,12 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
         aws-region: ${{ secrets.TERRAFORM_BACKEND_REGION }}
+      
+    - name: Set up Databricks CLI profile for Terraform provider
+      run: |
+        echo "[DEFAULT]" >> ~/.databrickscfg
+        echo "host = ${{ secrets.DATABRICKS_HOST }}" >> ~/.databrickscfg
+        echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databrickscfg
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
@@ -56,7 +65,8 @@ jobs:
       run: |
         terraform plan -input=false \
           -var="bucket={\"name\":\"${{ secrets.S3_BUCKET }}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
-          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}" \
+          -var="databricks_pipeline={\"s3_bucket_path\":\"${{ secrets.S3_BUCKET }}/${{ secrets.S3_BUCKET_PREFIX }}\",\"catalog\":\"twitch_test\", \"email\":\"${{ secrets.DATABRICKS_EMAIL }}\"}"
       working-directory: ./terraform
 
     - name: Terraform Plan Status
@@ -64,9 +74,11 @@ jobs:
       run: exit 1 
 
     - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
         terraform apply -input=false -auto-approve \
           -var="bucket={\"name\":\"${{ secrets.S3_BUCKET}}\",\"prefix\":\"${{ secrets.S3_BUCKET_PREFIX }}\"}" \
-          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}"
+          -var="twitch_credentials={name=\"${{ secrets.TWITCH_CREDENTIAL_NAME }}\",data={client_id=\"${{ secrets.TWITCH_CLIENT_ID_DEV }}\",client_secret=\"${{ secrets.TWITCH_CLIENT_SECRET_DEV }}\"}}" \
+          -var="databricks_pipeline={\"s3_bucket_path\":\"${{ secrets.S3_BUCKET }}/${{ secrets.S3_BUCKET_PREFIX }}\",\"catalog\":\"twitch_test\", \"email\":\"${{ secrets.DATABRICKS_EMAIL }}\"}"
       working-directory: ./terraform
   
