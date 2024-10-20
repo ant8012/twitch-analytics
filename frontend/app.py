@@ -15,8 +15,7 @@ st.set_page_config(layout="wide")
 
 DISPLAY_TOP_VALUES = 8
 
-# Set a low ttl as the sql warehouse will be spun down
-@st.cache_resource(ttl=300)
+@st.cache_resource
 def get_connection():
     return sql.connect(
         server_hostname=os.getenv("DATABRICKS_SERVER_HOSTNAME"),

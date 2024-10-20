@@ -2,7 +2,7 @@
 import pandas as pd
 import streamlit as st
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_top_games_hour(_cursor):
     _cursor.columns(schema_name="twitch_test", table_name="top_games_hour")
     _cursor.execute("SELECT * FROM top_games_hour LIMIT 100")
@@ -11,7 +11,7 @@ def get_top_games_hour(_cursor):
     return pd.DataFrame(rows, columns=column_names)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_top_games_day(cursor):
     cursor.columns(schema_name="twitch_test", table_name="top_games_day")
     cursor.execute("SELECT * FROM top_games_day LIMIT 100")
@@ -20,7 +20,7 @@ def get_top_games_day(cursor):
     return pd.DataFrame(rows, columns=column_names)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_top_games_week(cursor):
     cursor.columns(schema_name="twitch_test", table_name="top_games_week")
     cursor.execute("SELECT * FROM top_games_week LIMIT 100")
@@ -29,7 +29,7 @@ def get_top_games_week(cursor):
     return pd.DataFrame(rows, columns=column_names)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_top_games(_cursor, timescale):
     table_name = ""
     if timescale == "Hour":
@@ -57,7 +57,7 @@ def get_top_games(_cursor, timescale):
     return df
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_top_streamers(_cursor, timescale):
     table_name = ""
     if timescale == "Hour":
@@ -84,7 +84,7 @@ def get_top_streamers(_cursor, timescale):
     return df
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_stream_metrics(_cursor, timescale):
     table_name = ""
     if timescale == "Hour":
@@ -103,7 +103,7 @@ def get_stream_metrics(_cursor, timescale):
     return df
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_streamer_list(_cursor):
     _cursor.columns(schema_name="twitch_test", table_name="silver_twitch_streams")
     _cursor.execute("SELECT DISTINCT user_name from silver_twitch_streams")
@@ -114,7 +114,7 @@ def get_streamer_list(_cursor):
     return df
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_viewers(_cursor):
     _cursor.columns(schema_name="twitch_test", table_name="silver_twitch_streams")
     _cursor.execute(
@@ -127,7 +127,7 @@ def get_viewers(_cursor):
     return df
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data
 def get_latest_stream_metrics(_cursor):
     _cursor.columns(schema_name="twitch_test", table_name="latest_stream_metrics")
     _cursor.execute("SELECT * FROM latest_stream_metrics")
