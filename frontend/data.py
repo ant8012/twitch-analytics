@@ -1,36 +1,32 @@
+import os
+
+from databricks import sql
 
 import pandas as pd
 import streamlit as st
 
-@st.cache_data
-def get_top_games_hour(_cursor):
-    _cursor.columns(schema_name="twitch_test", table_name="top_games_hour")
-    _cursor.execute("SELECT * FROM top_games_hour LIMIT 100")
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-    return pd.DataFrame(rows, columns=column_names)
+
+@st.cache_resource(ttl=300)
+def get_connection():
+    return sql.connect(
+        server_hostname=os.getenv("DATABRICKS_SERVER_HOSTNAME"),
+        http_path=os.getenv("DATABRICKS_HTTP_PATH"),
+        access_token=os.getenv("DATABRICKS_TOKEN"),
+    )
 
 
-@st.cache_data
-def get_top_games_day(cursor):
-    cursor.columns(schema_name="twitch_test", table_name="top_games_day")
-    cursor.execute("SELECT * FROM top_games_day LIMIT 100")
-    rows = cursor.fetchall()
-    column_names = [desc[0] for desc in cursor.description]
-    return pd.DataFrame(rows, columns=column_names)
+def execute_query(table, query):
+    connection = get_connection()
+    with connection.cursor() as cursor:
+        cursor.columns(schema_name="twitch_test", table_name=table)
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        column_names = [desc[0] for desc in cursor.description]
 
+        return pd.DataFrame(rows, columns=column_names)
 
-@st.cache_data
-def get_top_games_week(cursor):
-    cursor.columns(schema_name="twitch_test", table_name="top_games_week")
-    cursor.execute("SELECT * FROM top_games_week LIMIT 100")
-    rows = cursor.fetchall()
-    column_names = [desc[0] for desc in cursor.description]
-    return pd.DataFrame(rows, columns=column_names)
-
-
-@st.cache_data
-def get_top_games(_cursor, timescale):
+@st.cache_data(ttl=3600)
+def get_top_games(timescale):
     table_name = ""
     if timescale == "Hour":
         table_name = "top_games_hour"
@@ -39,12 +35,9 @@ def get_top_games(_cursor, timescale):
     elif timescale == "Week":
         table_name = "top_games_week"
 
-    _cursor.columns(schema_name="twitch_test", table_name=table_name)
-    _cursor.execute(f"SELECT * FROM {table_name} ORDER BY hours_watched DESC LIMIT 100")
+    query = f"SELECT * FROM {table_name} ORDER BY hours_watched DESC LIMIT 100"
+    df = execute_query(table_name, query)
 
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-    df = pd.DataFrame(rows, columns=column_names)
     df.rename(
         columns={
             "game_name": "Name",
@@ -57,8 +50,8 @@ def get_top_games(_cursor, timescale):
     return df
 
 
-@st.cache_data
-def get_top_streamers(_cursor, timescale):
+@st.cache_data(ttl=3600)
+def get_top_streamers(timescale):
     table_name = ""
     if timescale == "Hour":
         table_name = "top_streamers_hour"
@@ -67,12 +60,8 @@ def get_top_streamers(_cursor, timescale):
     elif timescale == "Week":
         table_name = "top_streamers_week"
 
-    _cursor.columns(schema_name="twitch_test", table_name=table_name)
-    _cursor.execute(f"SELECT * FROM {table_name} ORDER BY hours_watched DESC LIMIT 100")
-
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-    df = pd.DataFrame(rows, columns=column_names)
+    query = f"SELECT * FROM {table_name} ORDER BY hours_watched DESC LIMIT 100"
+    df = execute_query(table_name, query)
     df.rename(
         columns={
             "user_name": "Name",
@@ -84,8 +73,8 @@ def get_top_streamers(_cursor, timescale):
     return df
 
 
-@st.cache_data
-def get_stream_metrics(_cursor, timescale):
+@st.cache_data(ttl=3600)
+def get_stream_metrics(timescale):
     table_name = ""
     if timescale == "Hour":
         table_name = "latest_stream_metrics_hour"
@@ -94,45 +83,27 @@ def get_stream_metrics(_cursor, timescale):
     elif timescale == "Week":
         table_name = "latest_stream_metrics_week"
 
-    _cursor.columns(schema_name="twitch_test", table_name=table_name)
-    _cursor.execute(f"SELECT * FROM {table_name}")
-
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-    df = pd.DataFrame(rows, columns=column_names)
+    query = f"SELECT * FROM {table_name}"
+    df = execute_query(table_name, query)
     return df
 
 
-@st.cache_data
-def get_streamer_list(_cursor):
-    _cursor.columns(schema_name="twitch_test", table_name="silver_twitch_streams")
-    _cursor.execute("SELECT DISTINCT user_name from silver_twitch_streams")
-
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-    df = pd.DataFrame(rows, columns=column_names)
+@st.cache_data(ttl=3600)
+def get_streamer_list():
+    query = "SELECT DISTINCT user_name from silver_twitch_streams"
+    df = execute_query("silver_twitch_streams", query)
     return df
 
 
-@st.cache_data
-def get_viewers(_cursor):
-    _cursor.columns(schema_name="twitch_test", table_name="silver_twitch_streams")
-    _cursor.execute(
-        "SELECT date_format(timestamp, 'MMM d HH:mm') as timestamp, SUM(viewer_count) as total_viewers from silver_twitch_streams WHERE timestamp >= CURRENT_TIMESTAMP() - INTERVAL 7 DAY group by timestamp order by timestamp ASC"
-    )
-
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-    df = pd.DataFrame(rows, columns=column_names)
+@st.cache_data(ttl=3600)
+def get_viewers():
+    query = "SELECT date_format(timestamp, 'MMM d HH:mm') as timestamp, SUM(viewer_count) as total_viewers from silver_twitch_streams WHERE timestamp >= CURRENT_TIMESTAMP() - INTERVAL 7 DAY group by timestamp order by timestamp ASC"
+    df = execute_query("silver_twitch_streams", query)
     return df
 
 
-@st.cache_data
-def get_latest_stream_metrics(_cursor):
-    _cursor.columns(schema_name="twitch_test", table_name="latest_stream_metrics")
-    _cursor.execute("SELECT * FROM latest_stream_metrics")
-
-    rows = _cursor.fetchall()
-    column_names = [desc[0] for desc in _cursor.description]
-
-    return pd.DataFrame(rows, columns=column_names)
+@st.cache_data(ttl=3600)
+def get_latest_stream_metrics():
+    query = "SELECT * FROM latest_stream_metrics"
+    df = execute_query("latest_stream_metrics", query)
+    return df

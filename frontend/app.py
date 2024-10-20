@@ -1,8 +1,6 @@
-import os
 
 import data
 
-from databricks import sql
 import dotenv
 from st_aggrid import AgGrid, GridOptionsBuilder
 import streamlit as st
@@ -15,15 +13,6 @@ st.set_page_config(layout="wide")
 
 DISPLAY_TOP_VALUES = 8
 
-@st.cache_resource
-def get_connection():
-    return sql.connect(
-        server_hostname=os.getenv("DATABRICKS_SERVER_HOSTNAME"),
-        http_path=os.getenv("DATABRICKS_HTTP_PATH"),
-        access_token=os.getenv("DATABRICKS_TOKEN"),
-    )
-
-connection = get_connection()
 
 def stream_metrics_cards(latest_stream_metrics):
     cols = st.columns(3)
@@ -255,35 +244,32 @@ def top_streamers_chart(stream_metrics, top_streamers):
 st.title("Twitch Metrics")
 st.caption("Updated every 6 hours")
 
-with connection.cursor() as cursor:
+top_games = []
+top_streamers = []
+stream_metrics = []
+live_viewers = []
 
-    top_games = []
-    top_streamers = []
-    stream_metrics = []
-    live_viewers = []
+with st.spinner(text="Loading this may take up to 30 seconds..."):
+    latest_stream_metrics = data.get_latest_stream_metrics()
 
-    with st.spinner(text="Loading this may take up to 30 seconds..."):
-        latest_stream_metrics = data.get_latest_stream_metrics(cursor)
+stream_metrics_cards(latest_stream_metrics)
 
-    stream_metrics_cards(latest_stream_metrics)
+with st.spinner(text="Loading this may take up to 30 seconds..."):
+    live_viewers = data.get_viewers()
 
-    with st.spinner(text="Loading this may take up to 30 seconds..."):
-        live_viewers = data.get_viewers(cursor)
-  
-    stream_viewers_chart(live_viewers)
+stream_viewers_chart(live_viewers)
 
-    st.header("Timescale Selector")
-    timescale = ui.tabs(options=["Hour", "Day", "Week"], default_value="Hour", key="time_filter")
-    
-    with st.spinner(text="Loading this may take up to 30 seconds..."):
-        top_games = data.get_top_games(cursor, timescale)
-        stream_metrics = data.get_stream_metrics(cursor, timescale)
-        top_streamers = data.get_top_streamers(cursor, timescale)
+st.header("Timescale Selector")
+timescale = ui.tabs(options=["Hour", "Day", "Week"], default_value="Hour", key="time_filter")
 
-    top_games_chart(stream_metrics, top_games)
+with st.spinner(text="Loading this may take up to 30 seconds..."):
+    top_games = data.get_top_games(timescale)
+    stream_metrics = data.get_stream_metrics(timescale)
+    top_streamers = data.get_top_streamers(timescale)
 
-    with st.spinner(text="Loading this may take up to 30 seconds..."):
-        stream_metrics = data.get_stream_metrics(cursor, timescale)
+top_games_chart(stream_metrics, top_games)
 
-    top_streamers_chart(stream_metrics, top_streamers)
-    
+with st.spinner(text="Loading this may take up to 30 seconds..."):
+    stream_metrics = data.get_stream_metrics(timescale)
+
+top_streamers_chart(stream_metrics, top_streamers)
