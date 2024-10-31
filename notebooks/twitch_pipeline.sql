@@ -234,6 +234,12 @@ CREATE OR REFRESH MATERIALIZED VIEW latest_stream_metrics_week AS
   FROM live.silver_twitch_streams
   WHERE timestamp >= CURRENT_TIMESTAMP() - INTERVAL 1 WEEK;
 
+CREATE OR REFRESH MATERIALIZED VIEW unique_streamers AS
+SELECT
+  DISTINCT user_name
+FROM
+  live.silver_twitch_streams;
+
 -- COMMAND ----------
 
 -- MAGIC %md
