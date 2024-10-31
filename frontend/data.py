@@ -91,7 +91,7 @@ def get_stream_metrics(timescale):
 @st.cache_data(ttl=7200)
 def get_viewers(streamer: None):
     print(streamer)
-    query = f"""SELECT
+    query = """SELECT
         date_format(timestamp, 'MMM d HH:mm') as timestamp,
         SUM(viewer_count) as total_viewers 
     FROM
