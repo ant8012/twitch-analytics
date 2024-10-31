@@ -236,5 +236,13 @@ CREATE OR REFRESH MATERIALIZED VIEW latest_stream_metrics_week AS
 
 -- COMMAND ----------
 
+CREATE OR REFRESH MATERIALIZED VIEW unique_streamers AS
+SELECT
+  DISTINCT user_name
+FROM
+  live.silver_twitch_streams;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC

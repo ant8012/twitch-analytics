@@ -5,6 +5,7 @@ import dotenv
 from st_aggrid import AgGrid, GridOptionsBuilder
 import streamlit as st
 from streamlit_echarts import st_echarts
+from streamlit_searchbox import st_searchbox
 import streamlit_shadcn_ui as ui
 
 dotenv.load_dotenv()
@@ -145,7 +146,7 @@ def top_games_chart(stream_metrics, top_games):
 
     cols = st.columns(2)
     with cols[0]:
-        st.header("Top Games")
+        st.header(":video_game: Top Games")
         AgGrid(
             top_games,
             gridOptions=grid_options,
@@ -223,7 +224,7 @@ def top_streamers_chart(stream_metrics, top_streamers):
 
     cols = st.columns(2)
     with cols[0]:
-        st.header("Top Streamers")
+        st.header(":computer: Top Streamers")
         AgGrid(
             top_streamers,
             gridOptions=grid_options,
@@ -241,7 +242,7 @@ def top_streamers_chart(stream_metrics, top_streamers):
             key="render_top_streamers",
         )
 
-st.title("Twitch Metrics")
+st.title(":speech_balloon: Twitch Metrics")
 st.caption("Updated every 6 hours")
 
 top_games = []
@@ -255,11 +256,28 @@ with st.spinner(text="Loading this may take up to 30 seconds..."):
 stream_metrics_cards(latest_stream_metrics)
 
 with st.spinner(text="Loading this may take up to 30 seconds..."):
-    live_viewers = data.get_viewers()
+    live_viewers = data.get_viewers(None)
 
 stream_viewers_chart(live_viewers)
 
-st.header("Timescale Selector")
+@st.fragment
+def _search_streamer_fragment():
+    st.header(":mag: Search for a streamer")
+    selected_value = st_searchbox(
+        data.get_streamer_list,
+        key="streamer_searchbox",
+        placeholder="Enter a streamer, ex: Northernlion",
+        rerun_scope="fragment",
+    )
+    if selected_value:
+        with st.spinner(text="Loading this may take up to 30 seconds..."):
+            viewers_for_streamer = data.get_viewers(selected_value)
+            stream_viewers_chart(viewers_for_streamer)
+
+
+_search_streamer_fragment()
+
+st.header(":calendar: Timescale Selector")
 timescale = ui.tabs(options=["Hour", "Day", "Week"], default_value="Hour", key="time_filter")
 
 with st.spinner(text="Loading this may take up to 30 seconds..."):
