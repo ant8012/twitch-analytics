@@ -1,9 +1,11 @@
 # Twitch Analytics Dashboard
 A pipeline and dashboard for displaying metrics from the streaming site [Twitch.tv](https://www.twitch.tv/) This is a personal project not associated with Twitch.tv. 
 
-![image](https://github.com/user-attachments/assets/b56fb3f9-a826-4957-8140-15db2e6a8b57)
+![image](https://github.com/user-attachments/assets/a4101467-eac8-4d08-92a1-d02f370e1e33)
 
-![6Vi0azn88Q](https://github.com/user-attachments/assets/7e305f7e-2646-4f7e-9fae-82c8a55a24fb)
+
+![image](https://github.com/user-attachments/assets/f4afd7b2-2750-4682-8599-c0eed7428acd)
+
 
 # Background
 As an avid watcher of Twitch I wanted to get a better understanding of the trends in the streaming space. I wanted to answer questions such as:
