@@ -270,8 +270,9 @@ def _search_streamer_fragment():
         rerun_scope="fragment",
     )
     if selected_value:
-        viewers_for_streamer = data.get_viewers(selected_value)
-        stream_viewers_chart(viewers_for_streamer)
+        with st.spinner(text="Loading this may take up to 30 seconds..."):
+            viewers_for_streamer = data.get_viewers(selected_value)
+            stream_viewers_chart(viewers_for_streamer)
 
 
 _search_streamer_fragment()
