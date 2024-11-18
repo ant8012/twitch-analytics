@@ -266,7 +266,7 @@ def _search_streamer_fragment():
     selected_value = st_searchbox(
         data.get_streamer_list,
         key="streamer_searchbox",
-        placeholder="Enter a streamer, ex: Northernlion",
+        placeholder="Enter a streamer, ex: DansGaming",
         rerun_scope="fragment",
     )
     if selected_value:
